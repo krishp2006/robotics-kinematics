@@ -1,9 +1,10 @@
 import math
-
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
 
-L1 = 10  
+L1 = 10
 L2 = 8
+
 
 def get_arm_positions(theta1, theta2):
     x1 = L1 * math.cos(theta1)
@@ -15,23 +16,66 @@ def get_arm_positions(theta1, theta2):
     return x1, y1, x2, y2
 
 
-
-theta1 = math.radians(50)
-theta2 = math.radians(20)
+# Initial angles
+theta1 = math.radians(0)
+theta2 = math.radians(0)
 
 x1, y1, x2, y2 = get_arm_positions(theta1, theta2)
 
-x = [0,x1,x2]
-y = [0,y1,y2]
+x = [0, x1, x2]
+y = [0, y1, y2]
 
-#Plotting 
 
-print("End effector:")
-print("x =", x2)
-print("y =", y2)
-
+# Plotting
 fig, ax = plt.subplots()
-ax.plot(x, y)
+plt.subplots_adjust(bottom=0.25)
 
-plt.axis('equal')
+# Create the arm
+line, = ax.plot(x, y, 'o-')
+
+ax.set_xlim(-20, 20)
+ax.set_ylim(-20, 20)
+ax.set_aspect('equal')
+
+
+# Create slider areas
+ax_theta1 = plt.axes([0.2, 0.1, 0.65, 0.03])
+ax_theta2 = plt.axes([0.2, 0.05, 0.65, 0.03])
+
+slider_theta1 = Slider(
+    ax_theta1,
+    'Theta 1',
+    0,
+    180,
+    valinit=0
+)
+
+slider_theta2 = Slider(
+    ax_theta2,
+    'Theta 2',
+    -135,
+    135,
+    valinit=0
+)
+
+# Update the arm when a slider moves
+def update(val):
+
+    theta1 = math.radians(slider_theta1.val)
+    theta2 = math.radians(slider_theta2.val)
+
+    x1, y1, x2, y2 = get_arm_positions(theta1, theta2)
+
+    x = [0, x1, x2]
+    y = [0, y1, y2]
+
+    line.set_data(x, y)
+
+    fig.canvas.draw_idle()
+
+
+slider_theta1.on_changed(update)
+slider_theta2.on_changed(update)
+
+
 plt.show()
