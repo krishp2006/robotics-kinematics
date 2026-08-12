@@ -16,6 +16,34 @@ def get_arm_positions(theta1, theta2):
     return x1, y1, x2, y2
 
 
+
+def inverse_kinematics(x,y):
+    
+    r = math.sqrt(x**2 + y**2)
+
+    cos_theta2 = (x**2 + y**2 -L1**2 - L2**2) / (2 * L1 * L2)
+
+    theta2 = math.acos(cos_theta2)  
+
+    theta1 = math.atan2(y, x) - math.atan2(
+        L2 * math.sin(theta2),
+        L1 + L2 * math.cos(theta2)
+    )
+    return theta1, theta2
+
+theta1, theta2 = inverse_kinematics(10, 10)
+
+
+x1, y1, x2, y2 = get_arm_positions(theta1, theta2)
+
+print("Target:")
+print("x =", )
+print("y =", 5)
+
+print("\nFK result:")
+print("x =", x2)
+print("y =", y2)
+
 # Initial angles
 theta1 = math.radians(0)
 theta2 = math.radians(0)
