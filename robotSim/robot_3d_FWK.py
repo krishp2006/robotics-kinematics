@@ -390,7 +390,7 @@ reset_button = Button(
 
 
 def reset_view(event):
-
+    
     ax.view_init(
         elev=25,
         azim=-60
