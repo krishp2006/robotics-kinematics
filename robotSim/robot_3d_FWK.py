@@ -5,14 +5,12 @@ from matplotlib.widgets import Slider, Button
 
 
 # Robot dimensions
-
 L1 = 5
 L2 = 8
 L3 = 6
 
 
 # Rotation around Z
-
 def rotation_z(theta):
 
     return np.array([
@@ -23,7 +21,6 @@ def rotation_z(theta):
 
 
 # Rotation around Y
-
 def rotation_y(theta):
 
     return np.array([
@@ -34,7 +31,6 @@ def rotation_y(theta):
 
 
 # Create transformation matrix
-
 def transformation_matrix(rotation, translation):
 
     T = np.eye(4)
@@ -254,7 +250,22 @@ debug_text = fig.text(
     family="monospace",
     verticalalignment="top"
 )
+# Target position
 
+target = np.array([
+    8.0,
+    5.0,
+    10.0
+])
+
+target_point, = ax.plot(
+    [target[0]],
+    [target[1]],
+    [target[2]],
+    'x',
+    markersize=12,
+    markeredgewidth=3
+)
 
 # Base slider
 
@@ -309,6 +320,58 @@ slider_elbow = Slider(
     valinit=-20
 )
 
+# Target X slider
+
+ax_target_x = fig.add_axes([
+    0.70,
+    0.40,
+    0.25,
+    0.03
+])
+
+slider_target_x = Slider(
+    ax_target_x,
+    'Target X',
+    -20,
+    20,
+    valinit=8
+)
+
+
+# Target Y slider
+
+ax_target_y = fig.add_axes([
+    0.70,
+    0.35,
+    0.25,
+    0.03
+])
+
+slider_target_y = Slider(
+    ax_target_y,
+    'Target Y',
+    -20,
+    20,
+    valinit=5
+)
+
+
+# Target Z slider
+
+ax_target_z = fig.add_axes([
+    0.70,
+    0.30,
+    0.25,
+    0.03
+])
+
+slider_target_z = Slider(
+    ax_target_z,
+    'Target Z',
+    0,
+    15,
+    valinit=10
+)
 
 # Reset view button
 
@@ -333,6 +396,7 @@ def reset_view(event):
     )
 
     fig.canvas.draw_idle()
+
 
 
 reset_button.on_clicked(reset_view)
@@ -375,6 +439,110 @@ def update(val):
     )
 
 
+    # Update target
+
+    target[0] = slider_target_x.val
+    target[1] = slider_target_y.val
+    target[2] = slider_target_z.val
+
+
+    target_point.set_data_3d(
+        [target[0]],
+        [target[1]],
+        [target[2]]
+    )
+
+
+    # Get end effector position
+
+    end_position = end_effector[:3, 0]
+
+
+    # Calculate error
+
+    error_vector = target - end_position
+
+    error = np.linalg.norm(
+        error_vector
+    )
+
+
+    debug_text.set_text(
+        f"""
+JOINTS
+
+J1 Base:     {math.degrees(theta1):7.2f}°
+J2 Shoulder: {math.degrees(theta2):7.2f}°
+J3 Elbow:    {math.degrees(theta3):7.2f}°
+
+
+TARGET
+
+X: {target[0]:7.2f}
+Y: {target[1]:7.2f}
+Z: {target[2]:7.2f}
+
+
+POSITIONS
+
+J1: ({base[0, 0]:6.2f}, {base[1, 0]:6.2f}, {base[2, 0]:6.2f})
+
+J2: ({joint2[0, 0]:6.2f}, {joint2[1, 0]:6.2f}, {joint2[2, 0]:6.2f})
+
+J3: ({joint3[0, 0]:6.2f}, {joint3[1, 0]:6.2f}, {joint3[2, 0]:6.2f})
+
+END: ({end_position[0]:6.2f}, {end_position[1]:6.2f}, {end_position[2]:6.2f})
+
+
+ERROR
+
+X: {error_vector[0]:7.2f}
+Y: {error_vector[1]:7.2f}
+Z: {error_vector[2]:7.2f}
+
+Distance: {error:7.2f}
+"""
+    )
+
+
+    fig.canvas.draw_idle()
+    theta1 = math.radians(
+        slider_base.val
+    )
+
+    theta2 = math.radians(
+        slider_shoulder.val
+    )
+
+    theta3 = math.radians(
+        slider_elbow.val
+    )
+
+
+    base, joint2, joint3, end_effector = forward_kinematics(
+        theta1,
+        theta2,
+        theta3
+    )
+
+    
+
+    x, y, z = get_positions(
+        base,
+        joint2,
+        joint3,
+        end_effector
+    )
+
+
+    line.set_data_3d(
+        x,
+        y,
+        z
+    )
+
+    
+
     debug_text.set_text(
         f"""
 JOINTS
@@ -405,6 +573,9 @@ slider_base.on_changed(update)
 slider_shoulder.on_changed(update)
 slider_elbow.on_changed(update)
 
+slider_target_x.on_changed(update)
+slider_target_y.on_changed(update)
+slider_target_z.on_changed(update)
 
 # Initialize
 
