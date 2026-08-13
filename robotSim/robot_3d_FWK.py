@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 
 
+
 # Robot dimensions
 L1 = 5
 L2 = 8
@@ -579,8 +580,6 @@ slider_target_z.on_changed(update)
 
 # Initialize
 
-update(None)
-
-
-
-plt.show()
+if __name__ == "__main__":
+    update(None)
+    plt.show()
