@@ -2,8 +2,10 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
+
 from matplotlib.widgets import Slider, Button, RadioButtons
 from robot_3d_FWK import forward_kinematics
+
 
 # Dimensions
 
@@ -300,7 +302,6 @@ def move_robot(target_angles):
     current_angles = np.array(
         target_angles
     )
-
 
 # Solve IK
 
